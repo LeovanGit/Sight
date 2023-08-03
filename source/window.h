@@ -21,8 +21,9 @@ class Window
     HDC hdc;    
 
     void setTexture(const Texture * texture);
-    void Clear();
     void Draw();
+
+    ~Window();
     
  private:
     void initWindowClass(HINSTANCE hInstance, WNDPROC windowProc);
@@ -36,4 +37,9 @@ class Window
 
     BITMAPINFO bmi;
     std::vector<uint32_t> pixels;
+
+    BLENDFUNCTION bf;
+    HDC hdcBitmap;
+    HBITMAP hbitmap;
+    VOID *pvBits;
 };

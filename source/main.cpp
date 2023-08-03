@@ -27,7 +27,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
     std::cout << "Screen size: " << screenWidth << "x" << screenHeight << "\n";
 #endif
 
-    Texture sightTexture("./assets/quad.png");
+    Texture sightTexture("./assets/cross.png");
 
     winWidth = sightTexture.width;
     winHeight = sightTexture.height;
@@ -39,7 +39,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
                (screenWidth - winWidth) / 2,
                (screenHeight - winHeight) / 2);
 
-    //win.setTexture(&sightTexture);
+    win.setTexture(&sightTexture);
+    win.Draw();
     
     MSG msg;
     // while (true)
@@ -64,10 +65,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-
-        //win.Clear();
-        //UpdateWindow(win.hWin);
-        win.Draw();
     }
     
     return msg.wParam;
