@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <windows.h>
-#include "wingdi.h"
+#include <wingdi.h>
 
 #include "texture.h"
 
@@ -17,17 +17,27 @@ class Window
            uint32_t posX,
            uint32_t posY);
 
-    HWND hWin;
-    HDC hdc;    
-
     void setTexture(const Texture * texture);
     void Draw();
 
     ~Window();
+
+    // temporarily unavailable
+    // deleted methods should be public for better error messages
+    Window(Window &) = delete;
+    Window(Window &&) = delete;
+    void operator=(Window &) = delete;
+    void operator=(Window &&) = delete;
     
  private:
     void initWindowClass(HINSTANCE hInstance, WNDPROC windowProc);
+    void createWindow(HINSTANCE hInstance);
+    void initBlendFunc();
+    void initBitmapInfo();
     void initPixelsBuffer();
+
+    HWND hWin;
+    HDC hdcWin;
     
     uint32_t width;
     uint32_t height;
@@ -35,11 +45,11 @@ class Window
     uint32_t posX;
     uint32_t posY;
 
-    BITMAPINFO bmi;
-    std::vector<uint32_t> pixels;
+    BLENDFUNCTION blendFunc;
 
-    BLENDFUNCTION bf;
     HDC hdcBitmap;
-    HBITMAP hbitmap;
-    VOID *pvBits;
+    HBITMAP hBitmap;
+    BITMAPINFO bmi;
+    // TODO: use heap, std::vector for example:
+    void * pixels;
 };

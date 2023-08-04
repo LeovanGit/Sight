@@ -4,12 +4,6 @@
 #include "window.h"
 #include "texture.h"
 
-namespace
-{
-uint32_t winWidth = 100;
-uint32_t winHeight = 100;
-}
-
 LRESULT CALLBACK WindowProc(HWND hWin,
     UINT message,
     WPARAM wParam,
@@ -27,40 +21,23 @@ int WINAPI WinMain(HINSTANCE hInstance,
     std::cout << "Screen size: " << screenWidth << "x" << screenHeight << "\n";
 #endif
 
-    Texture sightTexture("./assets/cross.png");
+    Texture crosshairTexture("./assets/crosshair.png");
 
-    winWidth = sightTexture.width;
-    winHeight = sightTexture.height;
+    uint32_t winWidth = crosshairTexture.getWidth();
+    uint32_t winHeight = crosshairTexture.getHeight();
     
     Window win(hInstance,
                WindowProc,
                winWidth,
                winHeight,
-               (screenWidth - winWidth) / 2,
+               (screenWidth - winWidth) / 2, // center of the screen
                (screenHeight - winHeight) / 2);
 
-    win.setTexture(&sightTexture);
+    win.setTexture(&crosshairTexture);
     win.Draw();
     
     MSG msg;
-    // while (true)
-    // {
-    //     if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-    //     {
-    //         TranslateMessage(&msg);
-    //         DispatchMessage(&msg);
-
-    //         if (msg.message == WM_QUIT) break;
-    //     }
-    //     else
-    //     {
-    //         // TODO: add FPS limitation
-    //         // we should redraw now, because of alphablend
-    //         // (we should blend each frame with background)
-    //         win.Draw();
-    //     }
-    // }
-    
+    // no need PeekMessage here, because of 1 draw call
     while (GetMessage(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);

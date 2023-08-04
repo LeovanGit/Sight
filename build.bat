@@ -1,1 +1,1 @@
-g++ source/main.cpp source/window.cpp source/texture.cpp -lgdi32 -lmsimg32 -o sight -DLOGS
+g++ source/main.cpp source/window.cpp source/texture.cpp -lgdi32 -lmsimg32 -o crosshair -DLOGS -mwindows
