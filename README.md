@@ -1,5 +1,22 @@
--lgdi32 обязательно должен быть после всех .cpp:
+# BUILD INSTRUCTIONS
+To compile this just use __build.bat__ or you can compile it yourself smth like this:
+* for dynamic linking:
+```cpp
+g++ source/main.cpp source/window.cpp source/texture.cpp -lgdi32 -lmsimg32 -o sight -DLOGS
 ```
-clear && g++ main.cpp window.cpp -lgdi32 -o sight && ./sight.exe
-clear && g++ main.cpp window.cpp -lgdi32 -static-libgcc -static-libstdc++ -o sight
+* for static linking:
+```cpp
+g++ source/main.cpp source/window.cpp source/texture.cpp -lgdi32 -lmsimg32 -static-libgcc -static-libstdc++ -static -lpthread -o sight -DLOGS
 ```
+
+Note that __-lgdi32__ and other libraries on some compilers must be after all *.cpp files!
+
+# HOW TO USE
+Actually you can use any image of any format that is supported by [stb library (QUICK NOTES)](https://github.com/nothings/stb/blob/master/stb_image.h) as crosshair texture, but for now you should just put image into assets directory and rename it as _crosshair.png_.
+
+Note that texture dimensions should be even (but not necessary quad) to draw crosshair accurate in the center.
+
+You can find some default crosshairs in assets directory.
+
+# TODO
+* Write own image loader library
