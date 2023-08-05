@@ -13,12 +13,12 @@ TranslucentWindow::TranslucentWindow(
             posY),
     pixels(nullptr)
 {
-    // initWindowClass(hInstance, windowProc);
-    // createWindow(hInstance);
+    registerWindowClass(hInstance);
+    createWindow(hInstance);
 
-    // ShowWindow(hWin, SW_SHOW);
+    ShowWindow(hWin, SW_SHOW);
     
-    // initPixelsBuffer();
+    initPixelsBuffer();
 }
 
 LRESULT CALLBACK TranslucentWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam)
@@ -42,20 +42,20 @@ void TranslucentWindow::registerWindowClass(HINSTANCE hInstance)
     
     winDesc.cbSize = sizeof(WNDCLASSEX);
     winDesc.style = CS_HREDRAW | CS_VREDRAW;
-    winDesc.lpfnWndProc = (WNDPROC)windowProc;
+    winDesc.lpfnWndProc = windowProc;
     winDesc.hInstance = hInstance;
     winDesc.hCursor = LoadCursor(NULL, IDC_ARROW);
     winDesc.hbrBackground = 0; // transparent
-    winDesc.lpszClassName = "WindowClass1";
+    winDesc.lpszClassName = "WindowClassTranslucent";
 
     RegisterClassEx(&winDesc);
 }
 
-void Window::createWindow(HINSTANCE hInstance)
+void TranslucentWindow::createWindow(HINSTANCE hInstance)
 {
     hWin = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT,
-                          "WindowClass1",
-                          "Title",
+                          "WindowClassTranslucent",
+                          "Translucent",
                           WS_POPUP,
                           posX,
                           posY,
@@ -69,7 +69,7 @@ void Window::createWindow(HINSTANCE hInstance)
     hdcWin = GetDC(hWin);
 }
 
-void Window::initBlendFunc()
+void TranslucentWindow::initBlendFunc()
 {
     blendFunc.BlendOp = AC_SRC_OVER;
     blendFunc.BlendFlags = 0;
@@ -77,7 +77,7 @@ void Window::initBlendFunc()
     blendFunc.SourceConstantAlpha = 0xFF; // constant alpha (100% for entire window)
 }
 
-void Window::initBitmapInfo()
+void TranslucentWindow::initBitmapInfo()
 {
     ZeroMemory(&bmi, sizeof(BITMAPINFO));
     
@@ -90,7 +90,7 @@ void Window::initBitmapInfo()
     bmi.bmiHeader.biSizeImage = width * height * 4;    
 }
 
-void Window::initPixelsBuffer()
+void TranslucentWindow::initPixelsBuffer()
 {
     initBlendFunc();
     initBitmapInfo();
@@ -122,7 +122,7 @@ void Window::initPixelsBuffer()
     }
 }
 
-void Window::setTexture(const Texture * texture)
+void TranslucentWindow::setTexture(const Texture * texture)
 {    
     const unsigned char * data = texture->getData();
     const uint32_t size = texture->getSize();
@@ -144,7 +144,7 @@ void Window::setTexture(const Texture * texture)
     }
 }
 
-void Window::Draw()
+void TranslucentWindow::Draw()
 {    
     RECT coord;    
     GetWindowRect(hWin, &coord);
@@ -164,7 +164,7 @@ void Window::Draw()
                         ULW_ALPHA);
 }
 
-Window::~Window()
+TranslucentWindow::~TranslucentWindow()
 {
     DeleteObject(hBitmap);
     DeleteDC(hdcWin);

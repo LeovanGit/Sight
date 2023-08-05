@@ -1,7 +1,8 @@
 #include <iostream>
 #include <windows.h>
 
-#include "window.h"
+#include "translucent_window.h"
+#include "menu_window.h"
 #include "texture.h"
 
 int WINAPI WinMain(HINSTANCE hInstance,
@@ -21,15 +22,20 @@ int WINAPI WinMain(HINSTANCE hInstance,
     uint32_t winWidth = crosshairTexture.getWidth();
     uint32_t winHeight = crosshairTexture.getHeight();
     
-    Window win(hInstance,
-               WindowProc,
-               winWidth,
-               winHeight,
-               (screenWidth - winWidth) / 2, // center of the screen
-               (screenHeight - winHeight) / 2);
-
+    TranslucentWindow win(hInstance,
+                          winWidth,
+                          winHeight,
+                          (screenWidth - winWidth) / 2, // center of the screen
+                          (screenHeight - winHeight) / 2);
+    
     win.setTexture(&crosshairTexture);
     win.Draw();
+
+    MenuWindow menuWin(hInstance,
+                       400,
+                       400,
+                       10,
+                       10);
     
     MSG msg;
     // no need PeekMessage here, because of 1 draw call

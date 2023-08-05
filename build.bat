@@ -1,1 +1,1 @@
-g++ source/main.cpp source/window.cpp source/texture.cpp -lgdi32 -lmsimg32 -o crosshair -DLOGS -mwindows
+g++ source/main.cpp source/window.cpp source/translucent_window.cpp source/menu_window.cpp source/texture.cpp -lgdi32 -lmsimg32 -o crosshair -DLOGS -mwindows

@@ -13,3 +13,4 @@ IWindow::IWindow(HINSTANCE hInstance,
     
 }
 
+IWindow::~IWindow() {};

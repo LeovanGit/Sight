@@ -9,7 +9,7 @@
 
 class IWindow
 {
- public:
+public:
     IWindow(HINSTANCE hInstance,
             uint32_t width,
             uint32_t height,
@@ -25,12 +25,7 @@ class IWindow
     void operator=(IWindow &) = delete;
     void operator=(IWindow &&) = delete;
     
- protected:
-    virtual LRESULT CALLBACK windowProc(HWND hWin,
-                                        UINT message,
-                                        WPARAM wParam,
-                                        LPARAM lParam) = 0;
-
+protected:
     virtual void registerWindowClass(HINSTANCE hInstance) = 0;
     virtual void createWindow(HINSTANCE hInstance) = 0;
     
