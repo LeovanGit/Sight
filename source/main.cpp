@@ -4,11 +4,6 @@
 #include "window.h"
 #include "texture.h"
 
-LRESULT CALLBACK WindowProc(HWND hWin,
-    UINT message,
-    WPARAM wParam,
-    LPARAM lParam);
-
 int WINAPI WinMain(HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
@@ -47,16 +42,3 @@ int WINAPI WinMain(HINSTANCE hInstance,
     return msg.wParam;
 }
 
-LRESULT CALLBACK WindowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-    case WM_DESTROY:
-    {
-        PostQuitMessage(0);
-        return 0;
-    }
-    }
-
-    return DefWindowProc(hWin, message, wParam, lParam);
-}

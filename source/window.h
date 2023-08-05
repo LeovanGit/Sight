@@ -7,35 +7,33 @@
 
 #include "texture.h"
 
-class Window
+class IWindow
 {
  public:
-    Window(HINSTANCE hInstance,
-           WNDPROC windowProc,
-           uint32_t width,
-           uint32_t height,
-           uint32_t posX,
-           uint32_t posY);
+    IWindow(HINSTANCE hInstance,
+            uint32_t width,
+            uint32_t height,
+            uint32_t posX,
+            uint32_t posY);
 
-    void setTexture(const Texture * texture);
-    void Draw();
-
-    ~Window();
+    virtual ~IWindow();
 
     // temporarily unavailable
     // deleted methods should be public for better error messages
-    Window(Window &) = delete;
-    Window(Window &&) = delete;
-    void operator=(Window &) = delete;
-    void operator=(Window &&) = delete;
+    IWindow(IWindow &) = delete;
+    IWindow(IWindow &&) = delete;
+    void operator=(IWindow &) = delete;
+    void operator=(IWindow &&) = delete;
     
- private:
-    void initWindowClass(HINSTANCE hInstance, WNDPROC windowProc);
-    void createWindow(HINSTANCE hInstance);
-    void initBlendFunc();
-    void initBitmapInfo();
-    void initPixelsBuffer();
+ protected:
+    virtual LRESULT CALLBACK windowProc(HWND hWin,
+                                        UINT message,
+                                        WPARAM wParam,
+                                        LPARAM lParam) = 0;
 
+    virtual void registerWindowClass(HINSTANCE hInstance) = 0;
+    virtual void createWindow(HINSTANCE hInstance) = 0;
+    
     HWND hWin;
     HDC hdcWin;
     
@@ -44,12 +42,4 @@ class Window
 
     uint32_t posX;
     uint32_t posY;
-
-    BLENDFUNCTION blendFunc;
-
-    HDC hdcBitmap;
-    HBITMAP hBitmap;
-    BITMAPINFO bmi;
-    // TODO: use heap, std::vector for example:
-    void * pixels;
 };
