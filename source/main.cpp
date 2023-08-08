@@ -25,6 +25,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
                        10);
 
     menuWin.showWindow();
+
+    // default crosshair
+    menuWin.crosshairWin->draw();
+    menuWin.crosshairWin->showWindow();
     
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))

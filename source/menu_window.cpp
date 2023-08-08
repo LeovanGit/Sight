@@ -134,11 +134,13 @@ void MenuWindow::createWindow(HINSTANCE hInstance)
 
 void MenuWindow::initCrosshair(HINSTANCE hInstance)
 {
+    uint32_t initWidth = 14;
+    uint32_t initHeight = 14;
     crosshairWin = std::make_unique<TranslucentWindow>(hInstance,
-                                                       100,
-                                                       100,
-                                                       (screenWidth - 50) / 2,
-                                                       (screenHeight - 50) / 2);
+                                                       initWidth,
+                                                       initHeight,
+                                                       (screenWidth - initWidth) / 2,
+                                                       (screenHeight - initHeight) / 2);
 }
 
 MenuWindow::~MenuWindow()
