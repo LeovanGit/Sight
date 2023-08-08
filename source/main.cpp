@@ -1,43 +1,32 @@
 #include <iostream>
 #include <windows.h>
+#include <memory>
 
-#include "window.h"
+#include "translucent_window.h"
+#include "menu_window.h"
 #include "texture.h"
 
-LRESULT CALLBACK WindowProc(HWND hWin,
-    UINT message,
-    WPARAM wParam,
-    LPARAM lParam);
+int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 int WINAPI WinMain(HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
     int nCmdShow)
 {
-    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-
 #ifdef LOGS
     std::cout << "Screen size: " << screenWidth << "x" << screenHeight << "\n";
 #endif
 
-    Texture crosshairTexture("./assets/crosshair.png");
+    MenuWindow menuWin(hInstance,
+                       400,
+                       400,
+                       10,
+                       10);
 
-    uint32_t winWidth = crosshairTexture.getWidth();
-    uint32_t winHeight = crosshairTexture.getHeight();
-    
-    Window win(hInstance,
-               WindowProc,
-               winWidth,
-               winHeight,
-               (screenWidth - winWidth) / 2, // center of the screen
-               (screenHeight - winHeight) / 2);
-
-    win.setTexture(&crosshairTexture);
-    win.Draw();
+    menuWin.showWindow();
     
     MSG msg;
-    // no need PeekMessage here, because of 1 draw call
     while (GetMessage(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);
@@ -47,16 +36,3 @@ int WINAPI WinMain(HINSTANCE hInstance,
     return msg.wParam;
 }
 
-LRESULT CALLBACK WindowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-    case WM_DESTROY:
-    {
-        PostQuitMessage(0);
-        return 0;
-    }
-    }
-
-    return DefWindowProc(hWin, message, wParam, lParam);
-}
