@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include "window.h"
+#include "translucent_window.h"
 
 class MenuWindow : public IWindow
 {
@@ -19,10 +22,14 @@ public:
     void operator=(MenuWindow &&) = delete;
 
     ~MenuWindow();
+
+    std::unique_ptr<TranslucentWindow> crosshairWin;
     
 protected:
     static LRESULT CALLBACK windowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam);
     
     virtual void registerWindowClass(HINSTANCE hInstance);
     virtual void createWindow(HINSTANCE hInstance);
+
+    void initCrosshair(HINSTANCE hInstance);
 };

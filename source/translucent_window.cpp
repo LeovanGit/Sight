@@ -15,8 +15,6 @@ TranslucentWindow::TranslucentWindow(
 {
     registerWindowClass(hInstance);
     createWindow(hInstance);
-
-    ShowWindow(hWin, SW_SHOW);
     
     initPixelsBuffer();
 }
@@ -25,10 +23,17 @@ LRESULT CALLBACK TranslucentWindow::windowProc(HWND hWin, UINT message, WPARAM w
 {
     switch (message)
     {
+    // DefWindowProc() calls WM_DESTROY when it gets WM_CLOSE, so
+    // lets hide window in WM_CLOSE instead of destroy
+    case WM_CLOSE:
+    {
+        ShowWindow(hWin, SW_HIDE);
+        return 0;
+    }    
     case WM_DESTROY:
     {
-        PostQuitMessage(0);
-        return 0;
+        // no need to exit
+        break;
     }
     }
     
@@ -87,7 +92,7 @@ void TranslucentWindow::initBitmapInfo()
     bmi.bmiHeader.biPlanes = 1;
     bmi.bmiHeader.biBitCount = 32; // ARGB 
     bmi.bmiHeader.biCompression = BI_RGB;
-    bmi.bmiHeader.biSizeImage = width * height * 4;    
+    bmi.bmiHeader.biSizeImage = width * height * 4;
 }
 
 void TranslucentWindow::initPixelsBuffer()
@@ -123,7 +128,40 @@ void TranslucentWindow::initPixelsBuffer()
 }
 
 void TranslucentWindow::setTexture(const Texture * texture)
-{    
+{
+    // TEST
+    uint32_t winWidth = texture->getWidth();
+    uint32_t winHeight = texture->getHeight();
+
+    width = winWidth;
+    height = winHeight;
+
+    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    
+    SetWindowPos(hWin,
+                 HWND_TOPMOST,
+                 (screenWidth - winWidth) / 2, // center of the screen
+                 (screenHeight - winHeight) / 2,
+                 winWidth,
+                 winHeight,
+                 SWP_SHOWWINDOW);
+
+    bmi.bmiHeader.biWidth = winWidth;
+    bmi.bmiHeader.biHeight = -winHeight;
+    bmi.bmiHeader.biSizeImage = winWidth * winHeight * 4;
+
+    hBitmap = CreateDIBSection(hdcBitmap,
+                               &bmi,
+                               DIB_RGB_COLORS,
+                               &pixels,
+                               NULL,
+                               0x0);
+
+    SelectObject(hdcBitmap, hBitmap);
+
+    // TEST
+    
     const unsigned char * data = texture->getData();
     const uint32_t size = texture->getSize();
     

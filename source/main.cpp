@@ -1,9 +1,13 @@
 #include <iostream>
 #include <windows.h>
+#include <memory>
 
 #include "translucent_window.h"
 #include "menu_window.h"
 #include "texture.h"
+
+// TODO: think about smarter architecture :d
+std::unique_ptr<MenuWindow> menuWin;
 
 int WINAPI WinMain(HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
@@ -17,28 +21,15 @@ int WINAPI WinMain(HINSTANCE hInstance,
     std::cout << "Screen size: " << screenWidth << "x" << screenHeight << "\n";
 #endif
 
-    Texture crosshairTexture("./assets/crosshair.png");
-
-    uint32_t winWidth = crosshairTexture.getWidth();
-    uint32_t winHeight = crosshairTexture.getHeight();
+    menuWin = std::make_unique<MenuWindow>(hInstance,
+                                           400,
+                                           400,
+                                           10,
+                                           10);
     
-    TranslucentWindow win(hInstance,
-                          winWidth,
-                          winHeight,
-                          (screenWidth - winWidth) / 2, // center of the screen
-                          (screenHeight - winHeight) / 2);
-    
-    win.setTexture(&crosshairTexture);
-    win.Draw();
-
-    MenuWindow menuWin(hInstance,
-                       400,
-                       400,
-                       10,
-                       10);
+    //menuWin->crosshairWin->Draw();
     
     MSG msg;
-    // no need PeekMessage here, because of 1 draw call
     while (GetMessage(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);

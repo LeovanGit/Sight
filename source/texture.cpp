@@ -5,7 +5,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../libraries/stb_image.h"
 
-Texture::Texture(const std::string & path) : path(path)
+Texture::Texture(const std::string & path) :
+                 path(path),
+                 data(nullptr)
 {
     load(path);
 }
@@ -20,7 +22,7 @@ void Texture::load(const std::string & path)
     assert(data != nullptr && "stbi_load() can't load image");
 
 #ifdef LOGS
-    std::cout << "Loading crosshair texture: " << width << "x" << height << "\n";
+    std::cout << "Loading crosshair texture " << width << "x" << height << " from " << path << "\n";
 #endif
 }
 

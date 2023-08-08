@@ -14,3 +14,5 @@ IWindow::IWindow(HINSTANCE hInstance,
 }
 
 IWindow::~IWindow() {};
+
+HWND IWindow::getHandle() const { return hWin; }

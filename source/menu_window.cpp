@@ -1,5 +1,7 @@
 #include "menu_window.h"
 
+extern std::unique_ptr<MenuWindow> menuWin;
+
 MenuWindow::MenuWindow(HINSTANCE hInstance,
                        uint32_t width,
                        uint32_t height,
@@ -15,6 +17,8 @@ MenuWindow::MenuWindow(HINSTANCE hInstance,
     createWindow(hInstance);
 
     ShowWindow(hWin, SW_SHOW);
+
+    initCrosshair(hInstance);
 }
 
 LRESULT CALLBACK MenuWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam)
@@ -23,7 +27,30 @@ LRESULT CALLBACK MenuWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, 
     {
     case WM_DESTROY:
     {
+        // if menu is closed than we should exit app
         PostQuitMessage(0);
+        return 0;
+    }
+    case WM_DROPFILES:
+    {
+        HDROP hDrop = reinterpret_cast<HDROP>(wParam);
+        
+        std::string filename;
+        // get path size of the first file (0) and ignore other:
+        uint32_t size = DragQueryFileA(hDrop, 0, NULL, 0);
+        if (size > 0)
+        {
+            filename.resize(size);
+            DragQueryFileA(hDrop, 0, &filename[0], size + 1);
+
+            Texture crosshairTexture(filename);
+            menuWin->crosshairWin->setTexture(&crosshairTexture);
+            menuWin->crosshairWin->Draw();
+            ShowWindow(menuWin->crosshairWin->getHandle(), SW_SHOW);
+        }
+        
+        DragFinish(hDrop);
+        
         return 0;
     }
     }
@@ -63,6 +90,15 @@ void MenuWindow::createWindow(HINSTANCE hInstance)
                           NULL);
     
     hdcWin = GetDC(hWin);
+}
+
+void MenuWindow::initCrosshair(HINSTANCE hInstance)
+{
+    crosshairWin = std::make_unique<TranslucentWindow>(hInstance,
+                                                       10,
+                                                       10,
+                                                       0,
+                                                       0);    
 }
 
 MenuWindow::~MenuWindow() {}

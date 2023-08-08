@@ -16,6 +16,8 @@ public:
             uint32_t posX,
             uint32_t posY);
 
+    HWND getHandle() const;
+    
     virtual ~IWindow();
 
     // temporarily unavailable
