@@ -26,7 +26,8 @@ public:
     std::unique_ptr<TranslucentWindow> crosshairWin;
     
 protected:
-    static LRESULT CALLBACK windowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual LRESULT CALLBACK windowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK messageRouter(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam);
     
     virtual void registerWindowClass(HINSTANCE hInstance);
     virtual void createWindow(HINSTANCE hInstance);

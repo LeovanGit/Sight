@@ -6,28 +6,25 @@
 #include "menu_window.h"
 #include "texture.h"
 
-// TODO: think about smarter architecture :d
-std::unique_ptr<MenuWindow> menuWin;
+int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 int WINAPI WinMain(HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
     int nCmdShow)
 {
-    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-
 #ifdef LOGS
     std::cout << "Screen size: " << screenWidth << "x" << screenHeight << "\n";
 #endif
 
-    menuWin = std::make_unique<MenuWindow>(hInstance,
-                                           400,
-                                           400,
-                                           10,
-                                           10);
-    
-    //menuWin->crosshairWin->Draw();
+    MenuWindow menuWin(hInstance,
+                       400,
+                       400,
+                       10,
+                       10);
+
+    menuWin.showWindow();
     
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))

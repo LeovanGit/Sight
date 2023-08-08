@@ -27,17 +27,54 @@ LRESULT CALLBACK TranslucentWindow::windowProc(HWND hWin, UINT message, WPARAM w
     // lets hide window in WM_CLOSE instead of destroy
     case WM_CLOSE:
     {
-        ShowWindow(hWin, SW_HIDE);
+        showWindow(false);
+        
         return 0;
-    }    
-    case WM_DESTROY:
+    }
+    case WM_SIZE:
     {
-        // no need to exit
-        break;
+        uint32_t width = LOWORD(lParam);
+        uint32_t height = HIWORD(lParam);
+        onResize(width, height);
+        
+        return 0;
+    }
+    case WM_MOVE:
+    {
+        uint32_t posX = LOWORD(lParam);
+        uint32_t posY = HIWORD(lParam);
+        onMove(posX, posY);
+        
+        return 0;
     }
     }
     
     return DefWindowProc(hWin, message, wParam, lParam);
+}
+
+LRESULT CALLBACK TranslucentWindow::messageRouter(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    TranslucentWindow *win;
+
+    if (message == WM_CREATE)
+    {
+        win = static_cast<TranslucentWindow*>(reinterpret_cast<LPCREATESTRUCT>(lParam)->lpCreateParams);
+        SetWindowLongPtr(hWin, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(win));
+    }
+    else
+    {
+        win = reinterpret_cast<TranslucentWindow*>(GetWindowLongPtr(hWin, GWLP_USERDATA));
+    }
+
+    if (win)
+        return win->windowProc(hWin, message, wParam, lParam);
+    else
+        // skip all messages before WM_CREATE
+        // because on some Windows versions
+        // WM_CREATE may not be the first msg
+        // after CreateWindowEx() and
+        // we will get garbage in win ptr
+        return DefWindowProc(hWin, message, wParam, lParam);
 }
 
 void TranslucentWindow::registerWindowClass(HINSTANCE hInstance)
@@ -47,7 +84,7 @@ void TranslucentWindow::registerWindowClass(HINSTANCE hInstance)
     
     winDesc.cbSize = sizeof(WNDCLASSEX);
     winDesc.style = CS_HREDRAW | CS_VREDRAW;
-    winDesc.lpfnWndProc = windowProc;
+    winDesc.lpfnWndProc = messageRouter;
     winDesc.hInstance = hInstance;
     winDesc.hCursor = LoadCursor(NULL, IDC_ARROW);
     winDesc.hbrBackground = 0; // transparent
@@ -58,20 +95,20 @@ void TranslucentWindow::registerWindowClass(HINSTANCE hInstance)
 
 void TranslucentWindow::createWindow(HINSTANCE hInstance)
 {
-    hWin = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT,
-                          "WindowClassTranslucent",
-                          "Translucent",
-                          WS_POPUP,
-                          posX,
-                          posY,
-                          width,
-                          height,
-                          NULL,
-                          NULL,
-                          hInstance,
-                          NULL);
+    handle = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+                            "WindowClassTranslucent",
+                            "Translucent",
+                            WS_POPUP,
+                            posX,
+                            posY,
+                            width,
+                            height,
+                            NULL,
+                            NULL,
+                            hInstance,
+                            this);
     
-    hdcWin = GetDC(hWin);
+    hdc = GetDC(handle);
 }
 
 void TranslucentWindow::initBlendFunc()
@@ -93,14 +130,8 @@ void TranslucentWindow::initBitmapInfo()
     bmi.bmiHeader.biBitCount = 32; // ARGB 
     bmi.bmiHeader.biCompression = BI_RGB;
     bmi.bmiHeader.biSizeImage = width * height * 4;
-}
 
-void TranslucentWindow::initPixelsBuffer()
-{
-    initBlendFunc();
-    initBitmapInfo();
-    
-    hdcBitmap = CreateCompatibleDC(hdcWin);
+    hdcBitmap = CreateCompatibleDC(hdc);
 
     hBitmap = CreateDIBSection(hdcBitmap,
                                &bmi,
@@ -110,16 +141,39 @@ void TranslucentWindow::initPixelsBuffer()
                                0x0);
 
     SelectObject(hdcBitmap, hBitmap);
+}
 
+void TranslucentWindow::initPixelsBuffer()
+{
+    initBlendFunc();
+    initBitmapInfo();
+    
     // ARGB, should be premultiplied alpha (PMA)
-    unsigned char red = 0xFF;
-    unsigned char green = 0x00;
-    unsigned char blue = 0x00;
-    unsigned char alpha = 0x32; // 50%
+    unsigned char alpha = 0xB4; // 70%
     float alphaFactor = (float)alpha / (float)0xFF;
+
+    uint32_t block_width = 20; // pixels
     
     for (uint32_t i = 0; i != width * height; ++i)
     {
+        // init texture - chess board pattern:
+        unsigned char red = 0x54;
+        unsigned char green = 0x59;
+        unsigned char blue = 0x48;
+
+        uint32_t pixel_col = i % width;
+        uint32_t pixel_row = i / height;
+
+        uint32_t block_col = pixel_col / block_width;
+        uint32_t block_row = pixel_row / block_width;
+        
+        if ((block_col + block_row) % 2 == 0)
+        {
+            red = 0x74;
+            green = 0x76;
+            blue = 0x6A;
+        }
+        
         static_cast<uint32_t *>(pixels)[i] = (alpha << 24) |
                                              (static_cast<unsigned char>(red * alphaFactor) << 16) |
                                              (static_cast<unsigned char>(green * alphaFactor) << 8) |
@@ -129,38 +183,8 @@ void TranslucentWindow::initPixelsBuffer()
 
 void TranslucentWindow::setTexture(const Texture * texture)
 {
-    // TEST
-    uint32_t winWidth = texture->getWidth();
-    uint32_t winHeight = texture->getHeight();
-
-    width = winWidth;
-    height = winHeight;
-
-    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-    
-    SetWindowPos(hWin,
-                 HWND_TOPMOST,
-                 (screenWidth - winWidth) / 2, // center of the screen
-                 (screenHeight - winHeight) / 2,
-                 winWidth,
-                 winHeight,
-                 SWP_SHOWWINDOW);
-
-    bmi.bmiHeader.biWidth = winWidth;
-    bmi.bmiHeader.biHeight = -winHeight;
-    bmi.bmiHeader.biSizeImage = winWidth * winHeight * 4;
-
-    hBitmap = CreateDIBSection(hdcBitmap,
-                               &bmi,
-                               DIB_RGB_COLORS,
-                               &pixels,
-                               NULL,
-                               0x0);
-
-    SelectObject(hdcBitmap, hBitmap);
-
-    // TEST
+    resize(texture->getWidth(), texture->getHeight());
+    move((screenWidth - width) / 2, (screenHeight - height) / 2); // center of the screen
     
     const unsigned char * data = texture->getData();
     const uint32_t size = texture->getSize();
@@ -182,17 +206,17 @@ void TranslucentWindow::setTexture(const Texture * texture)
     }
 }
 
-void TranslucentWindow::Draw()
-{    
-    RECT coord;    
-    GetWindowRect(hWin, &coord);
+void TranslucentWindow::draw()
+{
+    RECT coord;
+    GetWindowRect(handle, &coord);
     
     POINT windowPosition = { coord.left, coord.top };
     SIZE windowSize = { static_cast<LONG>(width), static_cast<LONG>(height) };
     POINT imagePosition = { 0, 0 };
     
-    UpdateLayeredWindow(hWin,
-                        hdcWin,
+    UpdateLayeredWindow(handle,
+                        hdc,
                         &windowPosition,
                         &windowSize,
                         hdcBitmap,
@@ -202,8 +226,27 @@ void TranslucentWindow::Draw()
                         ULW_ALPHA);
 }
 
+void TranslucentWindow::onResize(uint32_t newWidth, uint32_t newHeight)
+{
+    width = newWidth;
+    height = newHeight;
+    
+    bmi.bmiHeader.biWidth = newWidth;
+    bmi.bmiHeader.biHeight = -newHeight; // inverse by x
+    bmi.bmiHeader.biSizeImage = newWidth * newHeight * 4;
+    
+    hBitmap = CreateDIBSection(hdcBitmap,
+                               &bmi,
+                               DIB_RGB_COLORS,
+                               &pixels,
+                               NULL,
+                               0x0);
+    
+    SelectObject(hdcBitmap, hBitmap);
+}
+
 TranslucentWindow::~TranslucentWindow()
 {
     DeleteObject(hBitmap);
-    DeleteDC(hdcWin);
+    DeleteDC(hdc);
 }

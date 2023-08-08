@@ -15,4 +15,54 @@ IWindow::IWindow(HINSTANCE hInstance,
 
 IWindow::~IWindow() {};
 
-HWND IWindow::getHandle() const { return hWin; }
+HWND IWindow::getHandle() const { return handle; }
+
+void IWindow::showWindow(bool show) const
+{
+    if (show)
+        ShowWindow(handle, SW_SHOW);
+    else
+        ShowWindow(handle, SW_HIDE);
+}
+
+void IWindow::resize(uint32_t newWidth, uint32_t newHeight)
+{
+    // should also call onResize(), because SetWindowPos() will not generate WM_SIZE
+    // if new size is equal to current
+    SetWindowPos(handle,
+                 0,
+                 0,
+                 0,
+                 newWidth,
+                 newHeight,
+                 SWP_NOMOVE | SWP_NOZORDER);
+
+    onResize(newWidth, newHeight);
+}
+
+void IWindow::move(uint32_t newPosX, uint32_t newPosY)
+{
+    // should also call onMove(), because SetWindowPos() will not generate WM_MOVE
+    // if new pos is equal to current
+    SetWindowPos(handle,
+                 0,
+                 newPosX,
+                 newPosY,
+                 0,
+                 0,
+                 SWP_NOSIZE | SWP_NOZORDER);
+
+    onMove(newPosX, newPosY);
+}
+
+void IWindow::onResize(uint32_t newWidth, uint32_t newHeight)
+{
+    width = newWidth;
+    height = newHeight;
+}
+
+void IWindow::onMove(uint32_t newPosX, uint32_t newPosY)
+{
+    posX = newPosX;
+    posY = newPosY;
+}

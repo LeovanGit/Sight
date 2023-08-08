@@ -28,13 +28,13 @@ void Texture::load(const std::string & path)
 
 const unsigned char * Texture::getData() const { return data; }
 
-const int Texture::getWidth() const { return width; }
+int Texture::getWidth() const { return width; }
 
-const int Texture::getHeight() const { return height; }
+int Texture::getHeight() const { return height; }
 
-const int Texture::getChannels() const { return channels; }
+int Texture::getChannels() const { return channels; }
 
-const uint32_t Texture::getSize() const
+uint32_t Texture::getSize() const
 {
     return width * height * channels;
 }

@@ -12,13 +12,13 @@ class Texture
     
     const unsigned char * getData() const;
     
-    const int getWidth() const;
+    int getWidth() const;
     
-    const int getHeight() const;
+    int getHeight() const;
     
-    const int getChannels() const;
+    int getChannels() const;
 
-    const uint32_t getSize() const;
+    uint32_t getSize() const;
 
     ~Texture();
 

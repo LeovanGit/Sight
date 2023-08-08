@@ -12,8 +12,11 @@ class TranslucentWindow : public IWindow
                       uint32_t posY);
     
     void setTexture(const Texture * texture);
-    void Draw();
-
+    void draw();
+    
+    // resize by mouse
+    virtual void onResize(uint32_t newWidth, uint32_t newHeight);
+    
     ~TranslucentWindow();
 
     // temporarily unavailable
@@ -24,10 +27,8 @@ class TranslucentWindow : public IWindow
     void operator=(TranslucentWindow &&) = delete;
     
  protected:
-    static LRESULT CALLBACK windowProc(HWND hWin,
-                                       UINT message,
-                                       WPARAM wParam,
-                                       LPARAM lParam);
+    virtual LRESULT CALLBACK windowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK messageRouter(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam);
     
     virtual void registerWindowClass(HINSTANCE hInstance);
     virtual void createWindow(HINSTANCE hInstance);
