@@ -56,4 +56,12 @@ protected:
     void initCrosshair(HINSTANCE hInstance);
     
     std::unique_ptr<Texture> nextTexture;
+
+    // TODO: move this later into separate class like ImageWindow
+    void updatePixelsBuffer();
+    void drawImage();
+    HWND hImage;
+    HDC hdcImage;
+    BITMAPINFO bmi;
+    std::vector<uint32_t> pixels;
 };

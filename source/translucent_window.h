@@ -6,12 +6,17 @@ class TranslucentWindow : public IWindow
 {
  public:
     TranslucentWindow(HINSTANCE hInstance);
-
-    HBITMAP getBitmap() const;
     
     void setTexture(const Texture * texture);
     void reset();
     void draw();
+
+    // FOR TEST
+    void * getPixels() { return pixels; }
+    // move this two method to IWindow:
+    uint32_t getWidth() { return width; }
+    uint32_t getHeight() { return height; }
+    // FOR TEST
     
     // resize by mouse
     virtual void onResize(uint32_t newWidth, uint32_t newHeight);

@@ -17,12 +17,6 @@ TranslucentWindow::TranslucentWindow(HINSTANCE hInstance) :
     resetPixelsBuffer();
 }
 
-HBITMAP TranslucentWindow::getBitmap() const
-{
-    return hBitmap;
-}
-
-
 LRESULT CALLBACK TranslucentWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
