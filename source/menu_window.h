@@ -28,9 +28,19 @@ public:
 protected:
     virtual LRESULT CALLBACK windowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK messageRouter(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam);
-    
+
+    void adjustSize();
     virtual void registerWindowClass(HINSTANCE hInstance);
     virtual void createWindow(HINSTANCE hInstance);
+
+    void addContent();
+    
+    void addButton(int id,
+                   const std::string & text,
+                   uint32_t width,
+                   uint32_t height,
+                   uint32_t posX,
+                   uint32_t posY);
 
     void initCrosshair(HINSTANCE hInstance);
 };

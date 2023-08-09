@@ -5,13 +5,10 @@
 class TranslucentWindow : public IWindow
 {
  public:
-    TranslucentWindow(HINSTANCE hInstance,
-                      uint32_t width,
-                      uint32_t height,
-                      uint32_t posX,
-                      uint32_t posY);
+    TranslucentWindow(HINSTANCE hInstance);
     
     void setTexture(const Texture * texture);
+    void reset();
     void draw();
     
     // resize by mouse
@@ -35,7 +32,9 @@ class TranslucentWindow : public IWindow
     
     void initBlendFunc();
     void initBitmapInfo();
-    void initPixelsBuffer();
+    
+    void resetPixelsBuffer();
+    void resetPixelsBufferWithChessPattern();
     
     BLENDFUNCTION blendFunc;
     
@@ -44,4 +43,7 @@ class TranslucentWindow : public IWindow
     BITMAPINFO bmi;
     // TODO: use heap, std::vector for example:
     void * pixels;
+
+    static const uint32_t defaultWidth = 14;
+    static const uint32_t defaultHeight = 14;
 };

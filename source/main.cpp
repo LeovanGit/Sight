@@ -19,10 +19,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
 #endif
 
     MenuWindow menuWin(hInstance,
+                       230,
+                       110,
                        400,
-                       400,
-                       10,
-                       10);
+                       400);
 
     menuWin.showWindow();
 

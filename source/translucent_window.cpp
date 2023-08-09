@@ -1,22 +1,20 @@
 #include "translucent_window.h"
 
-TranslucentWindow::TranslucentWindow(
-    HINSTANCE hInstance,
-    uint32_t width,
-    uint32_t height,
-    uint32_t posX,
-    uint32_t posY) :
-    IWindow(hInstance,
-            width,
-            height,
-            posX,
-            posY),
-    pixels(nullptr)
+// you can change size and pos only by SetTexture()
+TranslucentWindow::TranslucentWindow(HINSTANCE hInstance) :
+                                     IWindow(hInstance,
+                                             defaultWidth,
+                                             defaultHeight,
+                                             (screenWidth - defaultWidth) / 2,
+                                             (screenHeight - defaultHeight) / 2),
+                                     pixels(nullptr)
 {
     registerWindowClass(hInstance);
     createWindow(hInstance);
-    
-    initPixelsBuffer();
+
+    initBlendFunc();
+    initBitmapInfo();
+    resetPixelsBuffer();
 }
 
 LRESULT CALLBACK TranslucentWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam)
@@ -143,53 +141,29 @@ void TranslucentWindow::initBitmapInfo()
     SelectObject(hdcBitmap, hBitmap);
 }
 
-void TranslucentWindow::initPixelsBuffer()
+// generate default crosshair texture
+void TranslucentWindow::resetPixelsBuffer()
 {
-    initBlendFunc();
-    initBitmapInfo();
-    
-    // ARGB, should be premultiplied alpha (PMA)
-    // DEFAULT CROSSHAIR
-    unsigned char red = 0x00;
-    unsigned char green = 0x00;
-    unsigned char blue = 0x00;
-    unsigned char alpha = 0x00; // 0%
-    // unsigned char alpha = 0xB4; // 70% for chess pattern
-    float alphaFactor = (float)alpha / (float)0xFF;
-
-    // uint32_t block_width = 20; // in pixels
-
+    // crosshair params
     uint32_t thickness = 2; // in pixels
     uint32_t min = (height - thickness) / 2;
     uint32_t max = (height + thickness) / 2;
 
     uint32_t length = 4; // in pixels
     
-    // generate default texture:
+    // ARGB, should be premultiplied alpha (PMA)
+    unsigned char red = 0;
+    unsigned char green = 0;
+    unsigned char blue = 0;
+    unsigned char alpha = 0;
+    float alphaFactor = 0;
+    
     for (uint32_t i = 0; i != width * height; ++i)
     {
-        // CHESS BOARD PATTERN:
-        // unsigned char red = 0x54;
-        // unsigned char green = 0x59;
-        // unsigned char blue = 0x48;
-
-        // uint32_t pixel_col = i % width;
-        // uint32_t pixel_row = i / height;
-
-        // uint32_t block_col = pixel_col / block_width;
-        // uint32_t block_row = pixel_row / block_width;
-        
-        // if ((block_col + block_row) % 2 == 0)
-        // {
-        //     red = 0x74;
-        //     green = 0x76;
-        //     blue = 0x6A;
-        // }
-
         uint32_t pixel_col = i % width;
         uint32_t pixel_row = i / height;
         
-        if ((pixel_row >= min && pixel_row < max && pixel_col < length) || // left stick
+        if ((pixel_row >= min && pixel_row < max && pixel_col < length) || // left
             (pixel_row >= min && pixel_row < max && pixel_col >= width - length && pixel_col <= width) || // right
             (pixel_col >= min && pixel_col < max && pixel_row < length) || // top
             (pixel_col >= min && pixel_col < max && pixel_row >= height - length && pixel_col <= height)) // bot
@@ -207,8 +181,49 @@ void TranslucentWindow::initPixelsBuffer()
             blue = 0x00;
             alpha = 0x00; // 0%
         }
-
+        
         alphaFactor = (float)alpha / (float)0xFF;
+        
+        static_cast<uint32_t *>(pixels)[i] = (alpha << 24) |
+                                             (static_cast<unsigned char>(red * alphaFactor) << 16) |
+                                             (static_cast<unsigned char>(green * alphaFactor) << 8) |
+                                             (static_cast<unsigned char>(blue * alphaFactor));
+    }
+}
+
+// generate default chess board texture
+void TranslucentWindow::resetPixelsBufferWithChessPattern()
+{
+    // board params
+    uint32_t block_width = 2; // in pixels
+    
+    // ARGB, should be premultiplied alpha (PMA)
+    unsigned char red = 0x00;
+    unsigned char green = 0x00;
+    unsigned char blue = 0x00;
+    unsigned char alpha = 0xB4; // 70%
+    float alphaFactor = (float)alpha / (float)0xFF;
+    
+    for (uint32_t i = 0; i != width * height; ++i)
+    {
+        uint32_t pixel_col = i % width;
+        uint32_t pixel_row = i / height;
+
+        uint32_t block_col = pixel_col / block_width;
+        uint32_t block_row = pixel_row / block_width;
+        
+        if ((block_col + block_row) % 2 == 0)
+        {
+            red = 0x74;
+            green = 0x76;
+            blue = 0x6A;
+        }
+        else
+        {
+            red = 0x54;
+            green = 0x59;
+            blue = 0x48;
+        }
         
         static_cast<uint32_t *>(pixels)[i] = (alpha << 24) |
                                              (static_cast<unsigned char>(red * alphaFactor) << 16) |
@@ -240,6 +255,14 @@ void TranslucentWindow::setTexture(const Texture * texture)
                                              (static_cast<unsigned char>(green * alphaFactor) << 8) |
                                              (static_cast<unsigned char>(blue * alphaFactor));
     }
+}
+
+void TranslucentWindow::reset()
+{
+    resize(defaultWidth, defaultHeight);
+    move((screenWidth - defaultWidth) / 2, (screenHeight - defaultHeight) / 2); // center of the screen
+
+    resetPixelsBuffer();
 }
 
 void TranslucentWindow::draw()

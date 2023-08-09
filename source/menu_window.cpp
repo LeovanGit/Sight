@@ -2,6 +2,13 @@
 
 extern std::unique_ptr<MenuWindow> menuWin;
 
+enum ButtonID
+{
+    APPLY = 0,
+    RESET,
+    HIDE,
+};
+
 MenuWindow::MenuWindow(HINSTANCE hInstance,
                        uint32_t width,
                        uint32_t height,
@@ -13,9 +20,13 @@ MenuWindow::MenuWindow(HINSTANCE hInstance,
                                posX,
                                posY)
 {
+    adjustSize();
     registerWindowClass(hInstance);
     createWindow(hInstance);
-        
+
+    // should be after createWindow(), because it uses handle
+    addContent();
+    
     initCrosshair(hInstance);
 }
 
@@ -23,6 +34,41 @@ LRESULT CALLBACK MenuWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, 
 {
     switch (message)
     {
+    // note that we should use hWin in WM_CREATE, because this msg will generated
+    // before CreateWindow() return and set "handle" class field
+    case WM_CREATE:
+    {
+        // moved to constructor:
+        // addContent();
+        
+        break;
+    }
+    case WM_COMMAND:
+    {
+        switch (LOWORD(wParam))
+        {
+        case ButtonID::APPLY:
+        {
+            
+            return 0;
+        }
+        case ButtonID::RESET:
+        {
+            crosshairWin->reset();
+            crosshairWin->draw();
+            
+            return 0;
+        }
+        case ButtonID::HIDE:
+        {
+            crosshairWin->showWindow(!IsWindowVisible(crosshairWin->getHandle()));
+            
+            return 0;
+        }        
+        }
+        
+        break;
+    }
     case WM_DESTROY:
     {
         // if menu is closed then we should exit app
@@ -61,7 +107,6 @@ LRESULT CALLBACK MenuWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, 
             Texture crosshairTexture(filename);
             crosshairWin->setTexture(&crosshairTexture);
             crosshairWin->draw();
-            crosshairWin->showWindow();
         }
         
         DragFinish(hDrop);
@@ -98,6 +143,18 @@ LRESULT CALLBACK MenuWindow::messageRouter(HWND hWin, UINT message, WPARAM wPara
         return DefWindowProc(hWin, message, wParam, lParam);
 }
 
+// menu window has border
+void MenuWindow::adjustSize()
+{
+    RECT clientAreaSize { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
+    AdjustWindowRect(&clientAreaSize,
+                     WS_OVERLAPPEDWINDOW,
+                     false);
+    
+    width = clientAreaSize.right - clientAreaSize.left;
+    height = clientAreaSize.bottom - clientAreaSize.top;
+}
+
 void MenuWindow::registerWindowClass(HINSTANCE hInstance)
 {
     WNDCLASSEX desc;
@@ -119,7 +176,7 @@ void MenuWindow::createWindow(HINSTANCE hInstance)
     handle = CreateWindowEx(WS_EX_ACCEPTFILES,
                             "WindowClassMenu",
                             "Menu",
-                            WS_OVERLAPPEDWINDOW,
+                            WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME, // forbid resizing
                             posX,
                             posY,
                             width,
@@ -132,15 +189,37 @@ void MenuWindow::createWindow(HINSTANCE hInstance)
     hdc = GetDC(handle);
 }
 
+void MenuWindow::addContent()
+{
+    addButton(ButtonID::APPLY, "Apply", 100, 30, 120, 10);
+    addButton(ButtonID::RESET, "Reset", 100, 30, 120, 45);
+    addButton(ButtonID::HIDE, "Hide", 100, 30, 120, 80);
+}
+
+void MenuWindow::addButton(int id,
+                           const std::string & text,
+                           uint32_t width,
+                           uint32_t height,
+                           uint32_t posX,
+                           uint32_t posY)
+{
+    HWND hButton = CreateWindowEx(0,
+                                  "BUTTON", // predefined window class
+                                  text.c_str(),
+                                  WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                                  posX,
+                                  posY,
+                                  width,
+                                  height,
+                                  handle,
+                                  reinterpret_cast<HMENU>(id),
+                                  (HINSTANCE)GetWindowLongPtr(handle, GWLP_HINSTANCE),
+                                  NULL);
+}
+
 void MenuWindow::initCrosshair(HINSTANCE hInstance)
 {
-    uint32_t initWidth = 14;
-    uint32_t initHeight = 14;
-    crosshairWin = std::make_unique<TranslucentWindow>(hInstance,
-                                                       initWidth,
-                                                       initHeight,
-                                                       (screenWidth - initWidth) / 2,
-                                                       (screenHeight - initHeight) / 2);
+    crosshairWin = std::make_unique<TranslucentWindow>(hInstance);
 }
 
 MenuWindow::~MenuWindow()
