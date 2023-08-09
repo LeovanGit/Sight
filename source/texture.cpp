@@ -18,8 +18,9 @@ void Texture::load(const std::string & path)
 
     this->path = path;
     
-    data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+    data = stbi_load(path.c_str(), &width, &height, &channels, 0);    
     assert(data != nullptr && "stbi_load() can't load image");
+    assert(channels == 4 && "image must have 4 channels (RGBA)");
 
 #ifdef LOGS
     std::cout << "Loading crosshair texture " << width << "x" << height << " from " << path << "\n";

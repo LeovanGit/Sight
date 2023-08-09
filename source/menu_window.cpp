@@ -51,11 +51,8 @@ LRESULT CALLBACK MenuWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, 
         {
         case ButtonID::APPLY:
         {
-            if (nextTexture)
-            {
-                crosshairWin->setTexture(nextTexture.get());
-                crosshairWin->draw();
-            }
+            crosshairWin->setTexture(nextTexture.get());
+            crosshairWin->draw();
             
             return 0;
         }

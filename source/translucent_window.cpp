@@ -240,6 +240,8 @@ void TranslucentWindow::resetPixelsBufferWithChessPattern()
 
 void TranslucentWindow::setTexture(const Texture * texture)
 {
+    if (!texture) return;
+    
     resize(texture->getWidth(), texture->getHeight());
     move((screenWidth - width) / 2, (screenHeight - height) / 2); // center of the screen
     
