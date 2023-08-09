@@ -6,6 +6,8 @@ class TranslucentWindow : public IWindow
 {
  public:
     TranslucentWindow(HINSTANCE hInstance);
+
+    HBITMAP getBitmap() const;
     
     void setTexture(const Texture * texture);
     void reset();

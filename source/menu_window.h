@@ -42,5 +42,18 @@ protected:
                    uint32_t posX,
                    uint32_t posY);
 
+    void addLabel(const std::string & text,
+                  uint32_t width,
+                  uint32_t height,
+                  uint32_t posX,
+                  uint32_t posY);
+
+    void addImage(uint32_t width,
+                  uint32_t height,
+                  uint32_t posX,
+                  uint32_t posY);
+    
     void initCrosshair(HINSTANCE hInstance);
+    
+    std::unique_ptr<Texture> nextTexture;
 };

@@ -19,7 +19,7 @@ class Texture
     int getChannels() const;
 
     uint32_t getSize() const;
-
+    
     ~Texture();
 
     // temporarily unavailable

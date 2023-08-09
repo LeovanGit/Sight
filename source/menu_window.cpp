@@ -18,16 +18,18 @@ MenuWindow::MenuWindow(HINSTANCE hInstance,
                                width,
                                height,
                                posX,
-                               posY)
+                               posY),
+                       nextTexture(nullptr)
 {
     adjustSize();
     registerWindowClass(hInstance);
     createWindow(hInstance);
 
-    // should be after createWindow(), because it uses handle
-    addContent();
-    
     initCrosshair(hInstance);
+    
+    // should be after createWindow(), because it uses handle
+    // and after initCrosshair(), because addImage()
+    addContent();
 }
 
 LRESULT CALLBACK MenuWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, LPARAM lParam)
@@ -49,6 +51,11 @@ LRESULT CALLBACK MenuWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, 
         {
         case ButtonID::APPLY:
         {
+            if (nextTexture)
+            {
+                crosshairWin->setTexture(nextTexture.get());
+                crosshairWin->draw();
+            }
             
             return 0;
         }
@@ -104,9 +111,7 @@ LRESULT CALLBACK MenuWindow::windowProc(HWND hWin, UINT message, WPARAM wParam, 
             filename.resize(size);
             DragQueryFileA(hDrop, 0, &filename[0], size + 1);
 
-            Texture crosshairTexture(filename);
-            crosshairWin->setTexture(&crosshairTexture);
-            crosshairWin->draw();
+            nextTexture = std::make_unique<Texture>(filename);
         }
         
         DragFinish(hDrop);
@@ -143,7 +148,6 @@ LRESULT CALLBACK MenuWindow::messageRouter(HWND hWin, UINT message, WPARAM wPara
         return DefWindowProc(hWin, message, wParam, lParam);
 }
 
-// menu window has border
 void MenuWindow::adjustSize()
 {
     RECT clientAreaSize { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
@@ -194,6 +198,10 @@ void MenuWindow::addContent()
     addButton(ButtonID::APPLY, "Apply", 100, 30, 120, 10);
     addButton(ButtonID::RESET, "Reset", 100, 30, 120, 45);
     addButton(ButtonID::HIDE, "Hide", 100, 30, 120, 80);
+
+    // TODO:
+    //addLabel("text text text", 100, 30, 10, 10);
+    //addImage(100, 100, 10, 10);
 }
 
 void MenuWindow::addButton(int id,
@@ -215,6 +223,49 @@ void MenuWindow::addButton(int id,
                                   reinterpret_cast<HMENU>(id),
                                   (HINSTANCE)GetWindowLongPtr(handle, GWLP_HINSTANCE),
                                   NULL);
+}
+
+void MenuWindow::addLabel(const std::string & text,
+                          uint32_t width,
+                          uint32_t height,
+                          uint32_t posX,
+                          uint32_t posY)
+{
+    HWND hLabel = CreateWindowEx(0,
+                                 "STATIC", // predefined window class
+                                 NULL,
+                                 WS_VISIBLE | WS_CHILD,
+                                 posX,
+                                 posY,
+                                 width,
+                                 height,
+                                 handle,
+                                 NULL,
+                                 (HINSTANCE)GetWindowLongPtr(handle, GWLP_HINSTANCE),
+                                 NULL);
+    
+    SetWindowText(hLabel, "Text");
+}
+
+void MenuWindow::addImage(uint32_t width,
+                          uint32_t height,
+                          uint32_t posX,
+                          uint32_t posY)
+{
+    HWND hImage = CreateWindowEx(0,
+                                 "STATIC", // predefined window class
+                                 NULL,
+                                 WS_VISIBLE | WS_CHILD | SS_BITMAP,
+                                 posX,
+                                 posY,
+                                 width,
+                                 height,
+                                 handle,
+                                 NULL,
+                                 (HINSTANCE)GetWindowLongPtr(handle, GWLP_HINSTANCE),
+                                 NULL);
+
+    SendMessage(hImage, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)crosshairWin->getBitmap());
 }
 
 void MenuWindow::initCrosshair(HINSTANCE hInstance)
