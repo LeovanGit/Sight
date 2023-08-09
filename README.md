@@ -1,13 +1,5 @@
 # BUILD INSTRUCTIONS
-To compile this just use __build.bat__ or you can compile it yourself smth like this:
-* for dynamic linking:
-```cpp
-g++ source/main.cpp source/window.cpp source/translucent_window.cpp source/menu_window.cpp source/texture.cpp -lgdi32 -lmsimg32 -o crosshair -DLOGS -mwindows
-```
-* for static linking:
-```cpp
-g++ source/main.cpp source/window.cpp source/translucent_window.cpp source/menu_window.cpp source/texture.cpp -lgdi32 -lmsimg32 -static-libgcc -static-libstdc++ -static -lpthread -o crosshair -DLOGS -mwindows
-```
+To compile this just use __build.bat__ for dynamic linking or __static_build.bat__ for static linking (all in one .exe).
 
 Note that __-lgdi32__ and other libraries on some compilers must be after all *.cpp files!
 
@@ -20,5 +12,3 @@ Note that texture dimensions should be even (but not necessary quad) to draw cro
 
 You can find some default crosshairs in assets directory.
 
-# TODO
-* Write own image loader library

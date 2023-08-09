@@ -1,0 +1,1 @@
+g++ -Wall -Wextra -pedantic source/main.cpp source/window.cpp source/translucent_window.cpp source/menu_window.cpp source/texture.cpp -lgdi32 -lmsimg32 -static-libgcc -static-libstdc++ -static -lpthread -o crosshair -DLOGS -mwindows
