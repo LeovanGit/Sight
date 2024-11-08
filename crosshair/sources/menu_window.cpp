@@ -109,7 +109,7 @@ void MenuWindow::registerWindowClass(HINSTANCE hInstance)
     desc.hInstance = hInstance;
     desc.hCursor = LoadCursor(NULL, IDC_ARROW);
     desc.hbrBackground = (HBRUSH)COLOR_BACKGROUND;
-    desc.lpszClassName = "WindowClassMenu";
+    desc.lpszClassName = L"WindowClassMenu";
     
     RegisterClassEx(&desc);
 }
@@ -117,8 +117,8 @@ void MenuWindow::registerWindowClass(HINSTANCE hInstance)
 void MenuWindow::createWindow(HINSTANCE hInstance)
 {
     handle = CreateWindowEx(WS_EX_ACCEPTFILES,
-                            "WindowClassMenu",
-                            "Menu",
+                            L"WindowClassMenu",
+                            L"Menu",
                             WS_OVERLAPPEDWINDOW,
                             posX,
                             posY,

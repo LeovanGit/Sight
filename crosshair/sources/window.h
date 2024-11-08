@@ -21,7 +21,8 @@ public:
 
     HWND getHandle() const;
 
-    void showWindow(bool show = true) const;
+    bool getWindowVisibility() const;
+    void showWindow(bool show = true);
 
     // resize/move from code
     virtual void resize(uint32_t newWidth, uint32_t newHeight);
@@ -59,4 +60,6 @@ protected:
 
     uint32_t posX;
     uint32_t posY;
+
+    bool isShowed;
 };

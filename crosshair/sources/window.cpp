@@ -8,7 +8,8 @@ IWindow::IWindow(HINSTANCE hInstance,
                  width(width),
                  height(height),
                  posX(posX),
-                 posY(posY)
+                 posY(posY),
+                 isShowed(false)
 {
     
 }
@@ -17,12 +18,23 @@ IWindow::~IWindow() {};
 
 HWND IWindow::getHandle() const { return handle; }
 
-void IWindow::showWindow(bool show) const
+bool IWindow::getWindowVisibility() const
+{
+    return isShowed;
+}
+
+void IWindow::showWindow(bool show)
 {
     if (show)
+    {
         ShowWindow(handle, SW_SHOW);
+        isShowed = true;
+    }
     else
+    {
+        isShowed = false;
         ShowWindow(handle, SW_HIDE);
+    }
 }
 
 void IWindow::resize(uint32_t newWidth, uint32_t newHeight)

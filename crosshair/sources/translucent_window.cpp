@@ -88,7 +88,7 @@ void TranslucentWindow::registerWindowClass(HINSTANCE hInstance)
     winDesc.hInstance = hInstance;
     winDesc.hCursor = LoadCursor(NULL, IDC_ARROW);
     winDesc.hbrBackground = 0; // transparent
-    winDesc.lpszClassName = "WindowClassTranslucent";
+    winDesc.lpszClassName = L"WindowClassTranslucent";
 
     RegisterClassEx(&winDesc);
 }
@@ -96,8 +96,8 @@ void TranslucentWindow::registerWindowClass(HINSTANCE hInstance)
 void TranslucentWindow::createWindow(HINSTANCE hInstance)
 {
     handle = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT,
-                            "WindowClassTranslucent",
-                            "Translucent",
+                            L"WindowClassTranslucent",
+                            L"Translucent",
                             WS_POPUP,
                             posX,
                             posY,
@@ -125,7 +125,7 @@ void TranslucentWindow::initBitmapInfo()
     
     bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     bmi.bmiHeader.biWidth = width;
-    bmi.bmiHeader.biHeight = -height;
+    bmi.bmiHeader.biHeight = -int32_t(height);
     bmi.bmiHeader.biPlanes = 1;
     bmi.bmiHeader.biBitCount = 32; // ARGB 
     bmi.bmiHeader.biCompression = BI_RGB;
@@ -268,7 +268,7 @@ void TranslucentWindow::onResize(uint32_t newWidth, uint32_t newHeight)
     height = newHeight;
     
     bmi.bmiHeader.biWidth = newWidth;
-    bmi.bmiHeader.biHeight = -newHeight; // inverse by x
+    bmi.bmiHeader.biHeight = -int32_t(newHeight); // inverse by x
     bmi.bmiHeader.biSizeImage = newWidth * newHeight * 4;
     
     hBitmap = CreateDIBSection(hdcBitmap,
